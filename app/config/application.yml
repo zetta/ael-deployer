@@ -1,24 +1,24 @@
 projects:
     reputometro:
-        path: reputometro
+        path: /home/ael/projects/reputometro.git
         host: monitor.reputationlevel.com
         user: reputationlevel
         port: 54322
         password: ~
     reputation-level:
-        path: reel
+        path: /home/ael/projects/reel.git
         host: beta.reputationlevel.com
         user: betareputationlevel
         port: 54322
         password: ~
     tuavisomx:
-        path: tuavisomx.git
+        path: /home/ael/projects/tuavisomx.git
         host: tuaviso.com.mx
         user: tuaviso
         port: 54322
         password: ~
     tuavisolat:
-        path: tuavisolat
+        path: /home/ael/projects/tuavisolat.git
         host: tuaviso.com.mx
         user: tuaviso-lat
         port: 54322
