@@ -1,0 +1,12 @@
+{
+	"name": "A3l/Deployer",
+    "version": "1.0",
+    "require": {
+        "symfony/yaml": "2.*",
+        "symfony/console": "2.*",
+        "symfony/event-dispatcher": "2.*"
+    },
+    "autoload": {
+        "psr-0": { "A3l\\": "src/" }
+    }
+}

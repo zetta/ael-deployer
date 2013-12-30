@@ -1,0 +1,9 @@
+projects:
+    reputometro:
+        host: monitor.reputationlevel.com
+        user: reputationlevel:
+        password: ~
+    reputation-level:
+        host: beta.reputationlevel.com
+        user: betareputationlevel
+        password: ~
