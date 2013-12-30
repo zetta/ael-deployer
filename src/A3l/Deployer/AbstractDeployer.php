@@ -55,6 +55,10 @@ abstract class AbstractDeployer
         $this->output->writeln('<comment>Creating archive</comment>');
         exec("git archive master | tar x -p -C {$this->projectDir}");
 
+        if (isset($this->config['rev']))
+        {
+            $this->createRevisionFile($this->config['rev'], $log);
+        }
 
         $this->output->writeln('<comment>Synchronizing</comment>');
         $command = sprintf('rsync -trzh --rsh=\'ssh -p %d\' %s/ %s@%s:/home/%3$s/',
@@ -68,5 +72,19 @@ abstract class AbstractDeployer
         $this->output->writeln('<comment>Cleaning workspace</comment>');
         exec('rm -Rf '.$this->projectDir);
 
+    }
+
+    /**
+     * Create Revision File
+     */
+    protected function createRevisionFile($filename, $log)
+    {
+        exec("touch {$this->projectDir}/{$filename}");
+        $date = date('r');
+        $content = "
+Deployed: ${date}
+Revision: ${log}
+        ";
+        file_put_contents("{$this->projectDir}/{$filename}", $content);
     }
 }

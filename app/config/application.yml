@@ -13,6 +13,7 @@ projects:
         password: ~
     tuavisomx:
         path: /home/ael/projects/tuavisomx.git
+        rev:  public_html/rev.txt
         host: tuaviso.com.mx
         user: tuaviso
         port: 54322
