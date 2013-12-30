@@ -17,7 +17,6 @@ class Configurator
      */
     public function __construct($filename = Configurator::FILE_NAME)
     {
-        echo getcwd(), "\n";
         $this->config = Yaml::parse($filename);
     }
 
@@ -48,5 +47,15 @@ class Configurator
     {
         return $this->config['projects'][$name];
     }
+
+    /**
+     * Return the registered project names
+     * @return array
+     */
+    public function getProjectNames()
+    {
+        return array_keys($this->config['projects']);
+    }
+
 
 }

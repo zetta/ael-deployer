@@ -12,4 +12,5 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 $console = new Application();
 $console->add(new A3l\Deployer\Command\ProjectCommand());
+$console->add(new A3l\Deployer\Command\UserCommand());
 $console->run();

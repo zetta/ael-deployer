@@ -3,6 +3,7 @@
 namespace A3l\Deployer\Command;
 
 use A3l\Deployer\Project;
+use A3l\Deployer\Configurator;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -17,7 +18,8 @@ class ProjectCommand extends Command
         $this
             ->setName('project:deploy')
             ->setDescription('Deploy a project')
-            ->addArgument('project', InputArgument::REQUIRED, 'project to deploy')
+            ->addArgument('project', InputArgument::OPTIONAL, 'project to deploy')
+            ->addOption('list', 'l',InputOption::VALUE_NONE, 'project list')
         ;
     }
 
@@ -26,7 +28,16 @@ class ProjectCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $project = new Project($input->getArgument('project'), $output);
-        $project->deploy();
+        if ($input->getOption('list'))
+        {
+            $configurator = new Configurator();
+            $output->writeln('<info>Registered Projects</info>');
+            $output->writeln($configurator->getProjectNames());
+        }else{
+            if (!$input->getArgument('project'))
+                throw new \InvalidArgumentException('You must specify a project name to deploy');
+            $project = new Project($input->getArgument('project'), $output);
+            $project->deploy();
+        }
     }
 }

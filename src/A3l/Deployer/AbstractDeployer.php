@@ -46,7 +46,7 @@ abstract class AbstractDeployer
         chdir($this->config['path']);
 
 
-        $log = exec('git log --pretty=format:"%h%x09%an%x09%ad%x09%s" -n 1');
+        $log = exec('git log --pretty=format:"%h %an %ad %s" -n 1');
 
         $this->output->writeln('<comment>Deploying from</comment>');
         $this->output->writeln("<info>${log}</info>");
@@ -82,8 +82,8 @@ abstract class AbstractDeployer
         $this->output->writeln("<comment>Writing rev file (${filename})</comment>");
         exec("touch {$this->projectDir}/{$filename}");
         $date = date('r');
-        $content = "
-Deployed: ${date}
+        $content =
+"Deployed: ${date}
 Revision: ${log}
         ";
         file_put_contents("{$this->projectDir}/{$filename}", $content);
