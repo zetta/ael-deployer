@@ -1,9 +1,25 @@
 projects:
     reputometro:
+        path: reputometro
         host: monitor.reputationlevel.com
-        user: reputationlevel:
+        user: reputationlevel
+        port: 54322
         password: ~
     reputation-level:
+        path: reel
         host: beta.reputationlevel.com
         user: betareputationlevel
+        port: 54322
+        password: ~
+    tuavisomx:
+        path: tuavisomx
+        host: tuaviso.com.mx
+        user: tuaviso
+        port: 54322
+        password: ~
+    tuavisolat:
+        path: tuavisolat
+        host: tuaviso.com.mx
+        user: tuaviso-lat
+        port: 54322
         password: ~
