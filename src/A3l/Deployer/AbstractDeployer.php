@@ -79,6 +79,7 @@ abstract class AbstractDeployer
      */
     protected function createRevisionFile($filename, $log)
     {
+        $this->output->writeln("<comment>Writing rev file (${filename})</comment>");
         exec("touch {$this->projectDir}/{$filename}");
         $date = date('r');
         $content = "
