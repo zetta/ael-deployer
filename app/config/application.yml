@@ -12,7 +12,7 @@ projects:
         port: 54322
         password: ~
     tuavisomx:
-        path: tuavisomx
+        path: tuavisomx.git
         host: tuaviso.com.mx
         user: tuaviso
         port: 54322
