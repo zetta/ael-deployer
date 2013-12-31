@@ -4,6 +4,7 @@ namespace A3l\Deployer;
 
 use A3l\Deployer\Configurator;
 use A3l\Deployer\Exception\ProjectNotFoundException;
+use A3l\Deployer\Util\Inflector;
 
 class Project
 {
@@ -30,7 +31,16 @@ class Project
 
         $config = $configurator->getProjectConfiguration($name);
         $output->writeln("<comment>Initializing deployment for ${name}</comment>");
-        $this->deployer = new Deployer($name, $config, $input, $output, $dialog);
+
+        $inflector = new Inflector();
+        $classname = $inflector->camelize($name);
+        $classname = "A3l\\Deployer\\${classname}Deployer";
+
+        if (class_exists($classname))
+            $this->deployer = new $classname($name, $config, $input, $output, $dialog);
+        else
+            $this->deployer = new Deployer($name, $config, $input, $output, $dialog);
+
         $this->output = $output;
         $this->input = $input;
     }

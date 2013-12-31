@@ -2,8 +2,15 @@
 
 namespace A3l\Deployer;
 
-abstract class AbstractDeployer
+use Symfony\Component\EventDispatcher\EventDispatcher;
+
+abstract class AbstractDeployer extends EventDispatcher
 {
+
+    const EVENT_DEPLOY_INIT       = 'evt.deploy.init';
+    const EVENT_DEPLOY_END        = 'evt.deploy.end';
+    const EVENT_DEPLOY_ON_CANCEL  = 'evt.deploy.on.cancel';
+    const EVENT_DEPLOY_ON_EXTRACT = 'evt.deploy.on.extract';
 
     protected $output;
     protected $input;
@@ -20,7 +27,13 @@ abstract class AbstractDeployer
         $this->config = $config;
         $this->dialog = $dialog;
         $this->prepare();
+        $this->attachEvents();
     }
+
+    /**
+     * Attach Events
+     */
+    protected abstract function attachEvents();
 
     /**
      * Prepares the temp directory
@@ -51,14 +64,22 @@ abstract class AbstractDeployer
         chdir($this->config['path']);
 
 
+        $this->dispatch(self::EVENT_DEPLOY_INIT);
+
         $log = exec('git log --pretty=format:"%h %an %ad %s" -n 1');
 
         $this->output->writeln('<comment>Deploying from</comment>');
         $this->output->writeln("<info>${log}</info>");
 
+        if (!$this->dialog->askConfirmation($this->output,'<question>Do you want to continue (y/n)?</question> ',false)) {
+            $this->dispatch(self::EVENT_DEPLOY_ON_CANCEL);
+            return;
+        }
 
         $this->output->writeln('<comment>Creating archive</comment>');
         exec("git archive master | tar x -p -C {$this->projectDir}");
+
+        $this->dispatch(self::EVENT_DEPLOY_ON_EXTRACT);
 
         if (isset($this->config['rev']))
         {
@@ -73,6 +94,8 @@ abstract class AbstractDeployer
                 $this->config['host']
             );
         exec($command);
+
+        $this->dispatch(self::EVENT_DEPLOY_END);
 
         $this->output->writeln('<comment>Cleaning workspace</comment>');
         exec('rm -Rf '.$this->projectDir);
@@ -90,7 +113,7 @@ abstract class AbstractDeployer
         $content =
 "Deployed: ${date}
 Revision: ${log}
-Author: ${username}
+Deployer: ${username}
         ";
         file_put_contents("{$this->projectDir}/{$filename}", $content);
     }

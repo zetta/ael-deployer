@@ -48,7 +48,7 @@ class UserManager
     public function getUser($username)
     {
         if (!isset($this->data['users'][$username]))
-            throw new InvalidCredentialsException("User ${user} doesn't exists");
+            throw new InvalidCredentialsException("User ${username} doesn't exists");
         return $this->data['users'][$username];
     }
 
