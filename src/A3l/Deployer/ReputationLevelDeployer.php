@@ -18,7 +18,9 @@ class ReputationLevelDeployer extends AbstractDeployer
     protected function onExtract(Event $event)
     {
         $this->output->writeln('<info>Preparing installation</info>');
+        copy("{$this->projectDir}/app/config/config.yml.dist", "{$this->projectDir}/app/config/config.yml");
         passthru("composer install");
+        unlink("{$this->projectDir}/app/config/config.yml");
     }
 
 }
