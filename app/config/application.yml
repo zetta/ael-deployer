@@ -8,7 +8,7 @@ projects:
         password: ~
     reputation-level:
         path: /home/ael/projects/reel.git
-        rev:  public/rev.txt
+        rev:  web/rev.txt
         host: beta.reputationlevel.com
         user: betareputationlevel
         port: 54322
