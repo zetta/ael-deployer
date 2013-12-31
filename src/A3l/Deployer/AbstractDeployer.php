@@ -79,6 +79,7 @@ abstract class AbstractDeployer extends EventDispatcher
         $this->output->writeln('<comment>Creating archive</comment>');
         exec("git archive master | tar x -p -C {$this->projectDir}");
 
+        chdir($this->projectDir);
         $this->dispatch(self::EVENT_DEPLOY_ON_EXTRACT);
 
         if (isset($this->config['rev']))
