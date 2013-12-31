@@ -11,13 +11,13 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class UserCommand extends Command
+class ProjectListCommand extends Command
 {
     protected function configure()
     {
         $this
-            ->setName('user:admin')
-            ->setDescription('User administration')
+            ->setName('project:list')
+            ->setDescription('list the configured projects')
         ;
     }
 
@@ -26,6 +26,8 @@ class UserCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /** @todo **/
+        $configurator = new Configurator();
+        $output->writeln('<info>Registered Projects</info>');
+        $output->writeln($configurator->getProjectNames());
     }
 }

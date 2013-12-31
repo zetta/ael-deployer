@@ -6,15 +6,19 @@ abstract class AbstractDeployer
 {
 
     protected $output;
+    protected $input;
+    protected $dialog;
     protected $name;
     protected $config;
     protected $projectDir;
 
-    public function __construct($name, $config, $output)
+    public function __construct($name, $config, $input, $output, $dialog)
     {
         $this->name = $name;
         $this->output = $output;
+        $this->input = $input;
         $this->config = $config;
+        $this->dialog = $dialog;
         $this->prepare();
     }
 
@@ -37,8 +41,9 @@ abstract class AbstractDeployer
 
     /**
      * Deployment job
+     * @param string $username the user who runs the deploy job
      */
-    public function deploy()
+    public function deploy($username)
     {
         chdir('..');
         if (!is_dir($this->config['path']))
@@ -57,7 +62,7 @@ abstract class AbstractDeployer
 
         if (isset($this->config['rev']))
         {
-            $this->createRevisionFile($this->config['rev'], $log);
+            $this->createRevisionFile($this->config['rev'], $log, $username);
         }
 
         $this->output->writeln('<comment>Synchronizing</comment>');
@@ -77,7 +82,7 @@ abstract class AbstractDeployer
     /**
      * Create Revision File
      */
-    protected function createRevisionFile($filename, $log)
+    protected function createRevisionFile($filename, $log, $username)
     {
         $this->output->writeln("<comment>Writing rev file (${filename})</comment>");
         exec("touch {$this->projectDir}/{$filename}");
@@ -85,6 +90,7 @@ abstract class AbstractDeployer
         $content =
 "Deployed: ${date}
 Revision: ${log}
+Author: ${username}
         ";
         file_put_contents("{$this->projectDir}/{$filename}", $content);
     }

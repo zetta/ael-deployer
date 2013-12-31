@@ -11,6 +11,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 $console = new Application();
-$console->add(new A3l\Deployer\Command\ProjectCommand());
-$console->add(new A3l\Deployer\Command\UserCommand());
+$console->addCommands(array(
+    new A3l\Deployer\Command\ProjectListCommand(),
+    new A3l\Deployer\Command\ProjectDeployCommand(),
+    new A3l\Deployer\Command\UserCreateCommand()
+));
 $console->run();
