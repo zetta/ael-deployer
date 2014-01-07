@@ -6,7 +6,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 abstract class AbstractDeployer extends EventDispatcher
 {
-
+    const EVENT_DEPLOY_PREPARE    = 'evt.deploy.prepare';
     const EVENT_DEPLOY_INIT       = 'evt.deploy.init';
     const EVENT_DEPLOY_END        = 'evt.deploy.end';
     const EVENT_DEPLOY_ON_CANCEL  = 'evt.deploy.on.cancel';
@@ -58,6 +58,8 @@ abstract class AbstractDeployer extends EventDispatcher
      */
     public function deploy($username)
     {
+        $this->dispatch(self::EVENT_DEPLOY_PREPARE);
+
         chdir('..');
         if (!is_dir($this->config['path']))
             throw new \InvalidArgumentException("Invalid path ({$this->config['path']}) specified for project {$this->name}");

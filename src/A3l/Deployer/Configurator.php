@@ -57,5 +57,13 @@ class Configurator
         return array_keys($this->config['projects']);
     }
 
+    /**
+     * Returns the users who need to notiy when a deployment starts
+     * @return array
+     */
+    public function getNotifyUsers()
+    {
+        return $this->config['users']['notify'];
+    }
 
 }

@@ -1,3 +1,6 @@
+users:
+    notify:
+        zetta: zetaweb@gmail.com
 projects:
     reputometro:
         path: /home/ael/projects/reputometro.git
@@ -10,7 +13,7 @@ projects:
         path: /home/ael/projects/reel.git
         rev:  web/rev.txt
         host: beta.reputationlevel.com
-        user: betareputationlevel
+        user: beta
         port: 54322
         password: ~
     tuavisomx:
