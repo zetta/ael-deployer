@@ -8,7 +8,7 @@ use A3l\Deployer\Util\Inflector;
 use Symfony\Component\EventDispatcher\Event;
 //use Bandroidx\XMPPHP\XMPPHP_XMPP;
 
-require_once 'vendor/bandroidx/xmpphp/XMPPHP/XMPP.php';
+//require_once 'vendor/bandroidx/xmpphp/XMPPHP/XMPP.php';
 
 class Project
 {
