@@ -23,8 +23,8 @@ class ReputationLevelDeployer extends AbstractDeployer
 
         passthru("php app/console fos:js-routing:dump --env=prod");
         passthru("php app/console assetic:dump --env=prod");
-        passthru("php app/console cache:clear --env=prod");
-        passthru("php app/console cache:clear --env=dev");
+        passthru("rm -Rf {$this->projectDir}/app/cache");
+        passthru("rm -Rf {$this->projectDir}/app/logs");
 
         unlink("{$this->projectDir}/app/config/parameters.yml");
     }
