@@ -21,8 +21,10 @@ class ReputationLevelDeployer extends AbstractDeployer
         copy("{$this->projectDir}/app/config/parameters.yml.dist", "{$this->projectDir}/app/config/parameters.yml");
         passthru("composer install --optimize-autoloader --no-dev");
 
-        passthru("php app/console fos:js-routing:dump");
+        passthru("php app/console fos:js-routing:dump --env=prod");
         passthru("php app/console assetic:dump --env=prod");
+        passthru("php app/console cache:clear --env=prod");
+        passthru("php app/console cache:clear --env=dev");
 
         unlink("{$this->projectDir}/app/config/parameters.yml");
     }
