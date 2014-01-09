@@ -90,7 +90,7 @@ abstract class AbstractDeployer extends EventDispatcher
         }
 
         $this->output->writeln('<comment>Synchronizing</comment>');
-        $command = sprintf('rsync -trzhl --rsh=\'ssh -p %d\' %s/ %s@%s:/home/%3$s/',
+        $command = sprintf('rsync -trzhlpv --rsh=\'ssh -p %d\' %s/ %s@%s:/home/%3$s/',
                 $this->config['port'],
                 $this->projectDir,
                 $this->config['user'],
