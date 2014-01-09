@@ -42,12 +42,16 @@ class ReputationLevelDeployer extends AbstractDeployer
      */
     protected function afterSync(Event $event)
     {
+        $assetDir = 'web/bundles/reel/assets'
         $resourceDir = 'src/A3l/ReelBundle/Resources/public/assets';
         $vendorDir = 'vendor/keenthemes/metronic/template_content/assets/';
 
         $this->addPostCommand("rm /home/beta/${resourceDir}");
+        $this->addPostCommand("rm /home/beta/${assetDir}");
         $this->addPostCommand("ln -s /home/beta/${vendorDir} /home/beta/${resourceDir}");
+        $this->addPostCommand("ln -s /home/beta/${vendorDir} /home/beta/${assetDir}");
         $this->addPostCommand("php app/console cache:clear --env=prod");
+
     }
 
 }
