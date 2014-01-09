@@ -138,7 +138,7 @@ Deployer: ${username}
      */
     protected function runPostCommands()
     {
-        foreach ($tihs->sshCommands as $command) {
+        foreach ($this->sshCommands as $command) {
             $sshCommand = sprintf("ssh -p %d -v %s@%s '%s'",
                 $this->config['port'],
                 $this->config['user'],
