@@ -9,6 +9,7 @@ abstract class AbstractDeployer extends EventDispatcher
     const EVENT_DEPLOY_PREPARE    = 'evt.deploy.prepare';
     const EVENT_DEPLOY_INIT       = 'evt.deploy.init';
     const EVENT_DEPLOY_END        = 'evt.deploy.end';
+    const EVENT_DEPLOY_AFTER_SYNC = 'evt.deploy.after.sync';
     const EVENT_DEPLOY_ON_CANCEL  = 'evt.deploy.on.cancel';
     const EVENT_DEPLOY_ON_EXTRACT = 'evt.deploy.on.extract';
 
@@ -18,6 +19,7 @@ abstract class AbstractDeployer extends EventDispatcher
     protected $name;
     protected $config;
     protected $projectDir;
+    protected $sshCommands = array();
 
     public function __construct($name, $config, $input, $output, $dialog)
     {
@@ -50,6 +52,15 @@ abstract class AbstractDeployer extends EventDispatcher
 
         mkdir($project);
         $this->projectDir = $project;
+    }
+
+    /**
+     * add a command to the post command array
+     * @param string $command
+     */
+    protected function addPostCommand($command)
+    {
+        $this->sshCommands[] = $command;
     }
 
     /**
@@ -90,7 +101,7 @@ abstract class AbstractDeployer extends EventDispatcher
         }
 
         $this->output->writeln('<comment>Synchronizing</comment>');
-        $command = sprintf('rsync -trzhlpv --rsh=\'ssh -p %d -v\' %s/ %s@%s:/home/%3$s/',
+        $command = sprintf('rsync -trzhlv --rsh=\'ssh -p %d -v\' %s/ %s@%s:/home/%3$s/',
                 $this->config['port'],
                 $this->projectDir,
                 $this->config['user'],
@@ -98,11 +109,12 @@ abstract class AbstractDeployer extends EventDispatcher
             );
         exec($command);
 
-        $this->dispatch(self::EVENT_DEPLOY_END);
+        $this->dispatch(self::EVENT_DEPLOY_AFTER_SYNC);
+        $this->runPostCommands();
 
         $this->output->writeln('<comment>Cleaning workspace</comment>');
         exec('rm -Rf '.$this->projectDir);
-
+        $this->dispatch(self::EVENT_DEPLOY_END);
     }
 
     /**
@@ -120,4 +132,21 @@ Deployer: ${username}
         ";
         file_put_contents("{$this->projectDir}/{$filename}", $content);
     }
+
+    /**
+     * Run commands at current ssh connection
+     */
+    protected function runPostCommands()
+    {
+        foreach ($tihs->sshCommands as $command) {
+            $sshCommand = sprintf("ssh -p %d -v %s@%s '%s'",
+                $this->config['port'],
+                $this->config['user'],
+                $this->config['host'],
+                $command
+                );
+            exec($sshCommand);
+        }
+    }
+
 }
