@@ -101,7 +101,7 @@ abstract class AbstractDeployer extends EventDispatcher
         }
 
         $this->output->writeln('<comment>Synchronizing</comment>');
-        $command = sprintf('rsync -trzhlv --rsh=\'ssh -p %d -v\' %s/ %s@%s:/home/%3$s/',
+        $command = sprintf('rsync -trzhlv --rsh=\'ssh -p %d \' %s/ %s@%s:/home/%3$s/',
                 $this->config['port'],
                 $this->projectDir,
                 $this->config['user'],
@@ -139,7 +139,7 @@ Deployer: ${username}
     protected function runPostCommands()
     {
         foreach ($this->sshCommands as $command) {
-            $sshCommand = sprintf("ssh -p %d -v %s@%s '%s'",
+            $sshCommand = sprintf("ssh -p %d %s@%s '%s'",
                 $this->config['port'],
                 $this->config['user'],
                 $this->config['host'],

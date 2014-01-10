@@ -52,6 +52,7 @@ class ReputationLevelDeployer extends AbstractDeployer
         $this->addPostCommand("ln -s /home/beta/${vendorDir} /home/beta/${resourceDir}");
         $this->addPostCommand("ln -s /home/beta/${vendorDir} /home/beta/${assetDir}");
         $this->addPostCommand("php app/console cache:clear --env=prod");
+        $this->addPostCommand("chmod -R 777 app/cache/");
 
     }
 
