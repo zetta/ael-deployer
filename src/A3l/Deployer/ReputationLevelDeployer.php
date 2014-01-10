@@ -32,6 +32,7 @@ class ReputationLevelDeployer extends AbstractDeployer
         passthru("php app/console assetic:dump --env=prod");
         passthru("rm -Rf {$this->projectDir}/app/cache");
         passthru("rm -Rf {$this->projectDir}/app/logs");
+        passthru("rm -v {$this->projectDir}/web/app_dev.php");
 
         unlink("{$this->projectDir}/app/config/parameters.yml");
     }
