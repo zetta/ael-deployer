@@ -43,7 +43,7 @@ class ReputationLevelDeployer extends AbstractDeployer
      */
     protected function afterSync(Event $event)
     {
-        $assetDir = 'web/bundles/reel/assets'
+        $assetDir = 'web/bundles/reel/assets';
         $resourceDir = 'src/A3l/ReelBundle/Resources/public/assets';
         $vendorDir = 'vendor/keenthemes/metronic/template_content/assets/';
 
