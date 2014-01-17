@@ -57,10 +57,11 @@ abstract class AbstractDeployer extends EventDispatcher
     /**
      * add a command to the post command array
      * @param string $command
+     * @param string $title 
      */
-    protected function addPostCommand($command)
+    protected function addPostCommand($command, $title = null)
     {
-        $this->sshCommands[] = $command;
+        $this->sshCommands[] = ['command' => $command, 'title' => $title];
     }
 
     /**
@@ -81,8 +82,8 @@ abstract class AbstractDeployer extends EventDispatcher
 
         $log = exec('git log --pretty=format:"%h %an %ad %s" -n 1');
 
-        $this->output->writeln('<comment>Deploying from</comment>');
-        $this->output->writeln("<info>${log}</info>");
+        $this->output->writeln('<info>Are you sure you want to deploy from?</info>');
+        $this->output->writeln("<comment>${log}</comment>");
 
         if (!$this->dialog->askConfirmation($this->output,'<question>Do you want to continue (y/n)?</question> ',false)) {
             $this->dispatch(self::EVENT_DEPLOY_ON_CANCEL);
@@ -139,13 +140,15 @@ Deployer: ${username}
     protected function runPostCommands()
     {
         foreach ($this->sshCommands as $command) {
+            if ($command['title'])
+                $this->output->writeln(sprintf('<info>%s</info>', $command['title']));
             $sshCommand = sprintf("ssh -p %d %s@%s '%s'",
                 $this->config['port'],
                 $this->config['user'],
                 $this->config['host'],
-                $command
+                $command['command']
                 );
-            exec($sshCommand);
+            passthru($sshCommand);
         }
     }
 

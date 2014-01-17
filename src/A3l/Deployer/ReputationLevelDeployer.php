@@ -18,6 +18,10 @@ class ReputationLevelDeployer extends AbstractDeployer
      */
     protected function onExtract(Event $event)
     {
+        // @todo
+        //$this->output->writeln('<info>Checking for php errors</info>');
+        //passthru("find . -name \\*.php -exec php -l \"{}\" \\; >> /dev/null ");
+
         $this->output->writeln('<info>Preparing installation</info>');
         copy("{$this->projectDir}/app/config/parameters.yml.dist", "{$this->projectDir}/app/config/parameters.yml");
 
@@ -47,12 +51,13 @@ class ReputationLevelDeployer extends AbstractDeployer
         $resourceDir = 'src/A3l/ReelBundle/Resources/public/assets';
         $vendorDir = 'vendor/keenthemes/metronic/template_content/assets/';
 
-        $this->addPostCommand("rm /home/beta/${resourceDir}");
+        $this->addPostCommand("rm /home/beta/${resourceDir}", 'Removing last assets');
         $this->addPostCommand("rm /home/beta/${assetDir}");
-        $this->addPostCommand("ln -s /home/beta/${vendorDir} /home/beta/${resourceDir}");
+        $this->addPostCommand("ln -s /home/beta/${vendorDir} /home/beta/${resourceDir}", 'Installing new asset directory');
         $this->addPostCommand("ln -s /home/beta/${vendorDir} /home/beta/${assetDir}");
-        $this->addPostCommand("php app/console cache:clear --env=prod");
+        $this->addPostCommand("php app/console cache:clear --env=prod", 'Clearing cache');
         $this->addPostCommand("chmod -R 777 app/cache/");
+        $this->addPostCommand("crontab crontab", 'Installing new crontab');
 
     }
 
