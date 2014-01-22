@@ -31,6 +31,7 @@ class ReputationLevelDeployer extends AbstractDeployer
         file_put_contents("{$this->projectDir}/composer.json", json_encode($json));
 
         passthru("composer install --optimize-autoloader --no-dev");
+        passthru("composer update a3l/askatl --optimize-autoloader --no-dev");
 
         passthru("php app/console fos:js-routing:dump --env=prod");
         passthru("php app/console assetic:dump --env=prod");
