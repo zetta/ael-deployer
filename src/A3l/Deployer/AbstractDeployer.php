@@ -3,6 +3,7 @@
 namespace A3l\Deployer;
 
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\Event;
 use A3l\Deployer\Events\DeployEvents;
 
 abstract class AbstractDeployer extends EventDispatcher
@@ -72,7 +73,7 @@ abstract class AbstractDeployer extends EventDispatcher
     /**
      * OnPrepare
      */
-    protected final function onEventPrepare()
+    protected final function onEventPrepare(Event $event)
     {
         chdir('..');
         $path = $this->config['base-path'].$this->config['path'];
@@ -84,7 +85,7 @@ abstract class AbstractDeployer extends EventDispatcher
     /**
      * On Start Event
      */
-    protected final function onEventStart()
+    protected final function onEventStart(Event $event)
     {
         $log = exec('git log --pretty=format:"%h %an %ad %s" -n 1');
         $this->output->writeln('<info>Are you sure you want to deploy from?</info>');
@@ -93,12 +94,12 @@ abstract class AbstractDeployer extends EventDispatcher
     }
 
 
-    protected final function onEventCancel()
+    protected final function onEventCancel(Event $event)
     {
         $this->output->writeln('<info>Deploy canceled by user</info>');
     }
 
-    protected final function onEventClone()
+    protected final function onEventClone(Event $event)
     {
         $this->output->writeln('<comment>Creating archive</comment>');
         exec("git archive master | tar x -p -C {$this->projectDir}");
@@ -109,13 +110,13 @@ abstract class AbstractDeployer extends EventDispatcher
         }
     }
 
-    protected final function onEventEnd()
+    protected final function onEventEnd(Event $event)
     {
         $this->output->writeln('<comment>Cleaning workspace</comment>');
         exec('rm -Rf '.$this->projectDir);
     }
 
-    protected final function onEventSync()
+    protected final function onEventSync(Event $event)
     {
         $this->output->writeln('<comment>Synchronizing</comment>');
         $command = sprintf('rsync -trzhlv --rsh=\'ssh -p %d \' %s/ %s@%s:/home/%3$s/',
@@ -127,7 +128,7 @@ abstract class AbstractDeployer extends EventDispatcher
         exec($command);
     }
 
-    protected final function onEventInstall()
+    protected final function onEventInstall(Event $event)
     {
         // no install commands
     }
