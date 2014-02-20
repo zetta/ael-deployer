@@ -66,4 +66,13 @@ class Configurator
         return $this->config['users']['notify'];
     }
 
+    /**
+     * get the log filename
+     * @return string
+     */
+    public function getLogFilename()
+    {
+        return isset($this->config['app']['log']) ? $this->config['app']['log'] : null;
+    }
+
 }

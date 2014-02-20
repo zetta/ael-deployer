@@ -27,9 +27,11 @@ class Project
      */
     public function __construct($name, $input, $output, $dialog)
     {
+        $configurator = new Configurator();
+        $output->startLog($configurator->getLogFilename());
         $output->writeln('<info>Looking for project configuration</info>');
 
-        $configurator = new Configurator();
+
         if (!$configurator->hasProject($name))
             throw new ProjectNotFoundException("Project ${name} isn't configured");
 

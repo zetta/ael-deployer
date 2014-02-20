@@ -22,6 +22,7 @@ class ProjectDeployCommand extends Command
             ->setDescription('Deploy a project')
             ->addArgument('project', InputArgument::REQUIRED, 'project to deploy')
             ->addOption('username', 'u', InputOption::VALUE_REQUIRED, 'username')
+            ->addOption('password', 'p', InputOption::VALUE_REQUIRED, 'password')
         ;
     }
 
@@ -34,7 +35,11 @@ class ProjectDeployCommand extends Command
         $username = $input->getOption('username');
         if (!$username)
             $username = $dialog->ask($output, 'username: ');
-        $password = $dialog->askHiddenResponse($output, 'password: ', false);
+        $password = $input->getOption('password');
+        if ($password)
+            $output->writeln('<error>Warning! it\' unsecure to send password via command line</error>');
+        else
+            $password = $dialog->askHiddenResponse($output, 'password: ', false);
 
         $auth = new Authentication(new UserManager());
         $auth->login($username, $password);

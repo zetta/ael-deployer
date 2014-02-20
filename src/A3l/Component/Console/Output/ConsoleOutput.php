@@ -22,13 +22,34 @@ use Symfony\Component\Console\Formatter\OutputFormatterInterface;
  */
 class ConsoleOutput extends BaseOutput
 {
+
+    protected $logHandler;
+
     /**
-     * Returns true
-     * because we need to colorize the output even if we are using tee command
-     * @return Boolean true if the stream supports colorization, false otherwise
+     * Starts the log
      */
-    protected function hasColorSupport()
+    public function startLog($filename)
     {
-        return true;
+        if ($filename)
+            $this->logHandler = fopen($filename, 'w');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function write($messages, $newline = false, $type = self::OUTPUT_NORMAL)
+    {
+        $messages = (array) $messages;
+        foreach ($messages as $message)
+        {
+            if (is_resource($this->logHandler))
+            {
+                $message = strip_tags($message);
+                $time = date('[d-m-Y H:i:s] ');
+                $message = $time . $message;
+                fwrite($this->logHandler, $message."\n");
+            }
+        }
+        parent::write($messages, $newline, $type);
     }
 }

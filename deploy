@@ -1,6 +1,3 @@
 #!/bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-LOGFILE=/tmp/zetta.deploy.log
-#php $DIR/application.php $@ | tee $LOGFILE
-#php $DIR/application.php $@ | tee /tmp/zetta.deploy.log
-php $DIR/application.php $@ 4<&1 5<&2 1>&2>&>(tee -a >(sed -r 's/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g' > $LOGFILE))
+php $DIR/application.php $@
