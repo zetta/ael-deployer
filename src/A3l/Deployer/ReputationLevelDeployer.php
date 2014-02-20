@@ -3,20 +3,21 @@
 namespace A3l\Deployer;
 
 use Symfony\Component\EventDispatcher\Event;
+use A3l\Deployer\Events\DeployEvents;
 
 class ReputationLevelDeployer extends AbstractDeployer
 {
     protected function attachEvents()
     {
-        $this->addListener(static::EVENT_DEPLOY_ON_EXTRACT, array($this,'onExtract'));
-        $this->addListener(static::EVENT_DEPLOY_AFTER_SYNC, array($this,'afterSync'));
+        $this->addListener(DeployEvents::DEPLOY_CLONE, array($this,'clone'));
+        $this->addListener(DeployEvents::DEPLOY_INSTALL, array($this,'install'));
     }
 
     /**
      * onExtract event
      * @param Event $event
      */
-    protected function onExtract(Event $event)
+    protected function clone(Event $event)
     {
         // @todo
         //$this->output->writeln('<info>Checking for php errors</info>');
@@ -46,19 +47,19 @@ class ReputationLevelDeployer extends AbstractDeployer
      * afterSync event
      * @param Event $event
      */
-    protected function afterSync(Event $event)
+    protected function install(Event $event)
     {
         $assetDir = 'web/bundles/reel/assets';
         $resourceDir = 'src/A3l/ReelBundle/Resources/public/assets';
         $vendorDir = 'vendor/keenthemes/metronic/template_content/assets/';
 
-        $this->addPostCommand("rm /home/beta/${resourceDir}", 'Removing last assets');
-        $this->addPostCommand("rm /home/beta/${assetDir}");
-        $this->addPostCommand("ln -s /home/beta/${vendorDir} /home/beta/${resourceDir}", 'Installing new asset directory');
-        $this->addPostCommand("ln -s /home/beta/${vendorDir} /home/beta/${assetDir}");
-        $this->addPostCommand("php app/console cache:clear --env=prod", 'Clearing cache');
-        $this->addPostCommand("chmod -R 777 app/cache/");
-        $this->addPostCommand("crontab crontab", 'Installing new crontab');
+        $this->remoteCommand("rm /home/beta/${resourceDir}", 'Removing last assets');
+        $this->remoteCommand("rm /home/beta/${assetDir}");
+        $this->remoteCommand("ln -s /home/beta/${vendorDir} /home/beta/${resourceDir}", 'Installing new asset directory');
+        $this->remoteCommand("ln -s /home/beta/${vendorDir} /home/beta/${assetDir}");
+        $this->remoteCommand("php app/console cache:clear --env=prod", 'Clearing cache');
+        $this->remoteCommand("chmod -R 777 app/cache/");
+        $this->remoteCommand("crontab crontab", 'Installing new crontab');
 
     }
 

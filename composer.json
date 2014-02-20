@@ -4,7 +4,8 @@
     "require": {
         "symfony/yaml": "2.*",
         "symfony/console": "2.*",
-        "symfony/event-dispatcher": "2.*"
+        "symfony/event-dispatcher": "2.*",
+        "fabiang/xmpp": "*"
     },
     "autoload": {
         "psr-0": { "A3l\\": "src/" }

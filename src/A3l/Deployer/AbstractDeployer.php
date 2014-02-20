@@ -3,32 +3,33 @@
 namespace A3l\Deployer;
 
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use A3l\Deployer\Events\DeployEvents;
 
 abstract class AbstractDeployer extends EventDispatcher
 {
-    const EVENT_DEPLOY_PREPARE    = 'evt.deploy.prepare';
-    const EVENT_DEPLOY_INIT       = 'evt.deploy.init';
-    const EVENT_DEPLOY_END        = 'evt.deploy.end';
-    const EVENT_DEPLOY_AFTER_SYNC = 'evt.deploy.after.sync';
-    const EVENT_DEPLOY_ON_CANCEL  = 'evt.deploy.on.cancel';
-    const EVENT_DEPLOY_ON_EXTRACT = 'evt.deploy.on.extract';
+    const WORKSPACE = '/tmp/deployment-workspace';
 
     protected $output;
     protected $input;
     protected $dialog;
     protected $name;
+    protected $username;
     protected $config;
+    protected $notifier;
     protected $projectDir;
     protected $sshCommands = array();
+    protected $gitLog = '';
 
-    public function __construct($name, $config, $input, $output, $dialog)
+    public function __construct($name, $config, $input, $output, $dialog, $notifier)
     {
         $this->name = $name;
         $this->output = $output;
         $this->input = $input;
         $this->config = $config;
         $this->dialog = $dialog;
-        $this->prepare();
+        $this->notifier = $notifier;
+        $this->prepareWorkspace();
+        $this->attachBaseEvents();
         $this->attachEvents();
     }
 
@@ -40,10 +41,10 @@ abstract class AbstractDeployer extends EventDispatcher
     /**
      * Prepares the temp directory
      */
-    protected function prepare()
+    protected function prepareWorkspace()
     {
-        $root = '/tmp/deployment-workspace';
-        $project = '/tmp/deployment-workspace/'.$this->name;
+        $root = self::WORKSPACE;
+        $project = self::WORKSPACE.'/'.$this->name;
         if (!is_dir($root))
             mkdir($root);
 
@@ -55,52 +56,67 @@ abstract class AbstractDeployer extends EventDispatcher
     }
 
     /**
-     * add a command to the post command array
-     * @param string $command
-     * @param string $title 
+     * Base abstract events
      */
-    protected function addPostCommand($command, $title = null)
+    private function attachBaseEvents()
     {
-        $this->sshCommands[] = ['command' => $command, 'title' => $title];
+        $this->addListener(DeployEvents::DEPLOY_PREPARE, array($this,'onEventPrepare'), 100);
+        $this->addListener(DeployEvents::DEPLOY_START,   array($this,'onEventStart'),   100);
+        $this->addListener(DeployEvents::DEPLOY_CANCEL,  array($this,'onEventCancel'),  100);
+        $this->addListener(DeployEvents::DEPLOY_CLONE,   array($this,'onEventClone'),   100);
+        $this->addListener(DeployEvents::DEPLOY_SYNC,    array($this,'onEventSync'),    100);
+        $this->addListener(DeployEvents::DEPLOY_INSTALL, array($this,'onEventInstall'), 100);
+        $this->addListener(DeployEvents::DEPLOY_END,     array($this,'onEventEnd'),     100);
     }
 
     /**
-     * Deployment job
-     * @param string $username the user who runs the deploy job
+     * OnPrepare
      */
-    public function deploy($username)
+    protected final function onEventPrepare()
     {
-        $this->dispatch(self::EVENT_DEPLOY_PREPARE);
-
         chdir('..');
-        if (!is_dir($this->config['path']))
-            throw new \InvalidArgumentException("Invalid path ({$this->config['path']}) specified for project {$this->name}");
-        chdir($this->config['path']);
+        $path = $this->config['base-path'].$this->config['path'];
+        if (!is_dir($path))
+            throw new \InvalidArgumentException("Invalid path (${path}) specified for project {$this->name}");
+        chdir($path);
+    }
 
-
-        $this->dispatch(self::EVENT_DEPLOY_INIT);
-
+    /**
+     * On Start Event
+     */
+    protected final function onEventStart()
+    {
         $log = exec('git log --pretty=format:"%h %an %ad %s" -n 1');
-
         $this->output->writeln('<info>Are you sure you want to deploy from?</info>');
         $this->output->writeln("<comment>${log}</comment>");
+        $this->gitLog;
+    }
 
-        if (!$this->dialog->askConfirmation($this->output,'<question>Do you want to continue (y/n)?</question> ',false)) {
-            $this->dispatch(self::EVENT_DEPLOY_ON_CANCEL);
-            return;
-        }
 
+    protected final function onEventCancel()
+    {
+        $this->output->writeln('<info>Deploy canceled by user</info>');
+    }
+
+    protected final function onEventClone()
+    {
         $this->output->writeln('<comment>Creating archive</comment>');
         exec("git archive master | tar x -p -C {$this->projectDir}");
-
         chdir($this->projectDir);
-        $this->dispatch(self::EVENT_DEPLOY_ON_EXTRACT);
-
         if (isset($this->config['rev']))
         {
-            $this->createRevisionFile($this->config['rev'], $log, $username);
+            $this->createRevisionFile($this->config['rev'], $this->gitLog, $this->username);
         }
+    }
 
+    protected final function onEventEnd()
+    {
+        $this->output->writeln('<comment>Cleaning workspace</comment>');
+        exec('rm -Rf '.$this->projectDir);
+    }
+
+    protected final function onEventSync()
+    {
         $this->output->writeln('<comment>Synchronizing</comment>');
         $command = sprintf('rsync -trzhlv --rsh=\'ssh -p %d \' %s/ %s@%s:/home/%3$s/',
                 $this->config['port'],
@@ -109,13 +125,35 @@ abstract class AbstractDeployer extends EventDispatcher
                 $this->config['host']
             );
         exec($command);
+    }
 
-        $this->dispatch(self::EVENT_DEPLOY_AFTER_SYNC);
-        $this->runPostCommands();
+    protected final function onEventInstall()
+    {
+        // no install commands
+    }
 
-        $this->output->writeln('<comment>Cleaning workspace</comment>');
-        exec('rm -Rf '.$this->projectDir);
-        $this->dispatch(self::EVENT_DEPLOY_END);
+    /**
+     * Deployment job
+     * @param string $username the user who runs the deploy job
+     */
+    public function deploy($username)
+    {
+        $this->username = $username;
+        $this->dispatch(DeployEvents::DEPLOY_PREPARE);
+        $this->dispatch(DeployEvents::DEPLOY_START);
+
+        if (!$this->dialog->askConfirmation($this->output,'<question>Do you want to continue (y/n)?</question> ',false)) {
+            $this->dispatch(DeployEvents::DEPLOY_CANCEL);
+            $this->dispatch(DeployEvents::DEPLOY_END);
+            return;
+        }
+
+        $this->dispatch(DeployEvents::DEPLOY_CLONE);
+        $this->dispatch(DeployEvents::DEPLOY_SYNC);
+        $this->dispatch(DeployEvents::DEPLOY_INSTALL);
+
+        //$this->runPostCommands();
+        $this->dispatch(DeployEvents::DEPLOY_END);
     }
 
     /**
@@ -135,21 +173,21 @@ Deployer: ${username}
     }
 
     /**
-     * Run commands at current ssh connection
+     * Run remote command on server
+     * @param string $command
+     * @param string $title
      */
-    protected function runPostCommands()
+    protected function remoteCommand($command, $title = null)
     {
-        foreach ($this->sshCommands as $command) {
-            if ($command['title'])
-                $this->output->writeln(sprintf('<info>%s</info>', $command['title']));
-            $sshCommand = sprintf("ssh -p %d %s@%s '%s'",
-                $this->config['port'],
-                $this->config['user'],
-                $this->config['host'],
-                $command['command']
-                );
-            passthru($sshCommand);
-        }
+        if ($title)
+            $this->output->writeln(sprintf('<info>%s</info>', $title));
+        $sshCommand = sprintf("ssh -p %d %s@%s '%s'",
+            $this->config['port'],
+            $this->config['user'],
+            $this->config['host'],
+            $command
+        );
+        passthru($sshCommand);
     }
 
 }

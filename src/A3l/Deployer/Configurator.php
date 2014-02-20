@@ -45,7 +45,7 @@ class Configurator
      */
     public function getProjectConfiguration($name)
     {
-        return $this->config['projects'][$name];
+        return array_merge($this->config['project'], $this->config['projects'][$name]);
     }
 
     /**

@@ -1,32 +1,38 @@
 users:
     notify:
-        zetta: zetaweb@gmail.com
+        zetta:
+            - email: juan@reputationlevel.com
+            - xmpp: zetaweb@gmail.com
+        carlos:
+            - email: carlos@reputationlevel.com
+project:
+    base-path: /home/zetta/Documents/git/
+    port: 54322
+    password: ~
 projects:
     reputometro:
-        path: /home/ael/projects/reputometro.git
+        path: reputometro.git
         rev:  public_html/rev.txt
         host: monitor.reputationlevel.com
         user: reputationlevel
-        port: 54322
         password: ~
     reputation-level:
-        path: /home/ael/projects/reel.git
+        path: reel
         rev:  web/rev.txt
         host: beta.reputationlevel.com
         user: beta
-        port: 54322
-        password: ~
     tuavisomx:
-        path: /home/ael/projects/tuavisomx.git
+        path: tuavisomx.git
         rev:  public_html/rev.txt
         host: tuaviso.com.mx
         user: tuaviso
-        port: 54322
-        password: ~
     tuavisolat:
-        path: /home/ael/projects/tuavisolat.git
+        path: tuavisolat.git
         rev:  public_html/rev.txt
         host: tuaviso.com.mx
         user: tuaviso-lat
-        port: 54322
-        password: ~
+    test:
+        path: deploy
+        rev:  rev.txt
+        host: localhost
+        user: zetta

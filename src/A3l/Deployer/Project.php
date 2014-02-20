@@ -3,12 +3,12 @@
 namespace A3l\Deployer;
 
 use A3l\Deployer\Configurator;
+use A3l\Deployer\Notifier;
 use A3l\Deployer\Exception\ProjectNotFoundException;
 use A3l\Deployer\Util\Inflector;
+use A3l\Deployer\Notifier\NotifierManager;
 use Symfony\Component\EventDispatcher\Event;
-//use Bandroidx\XMPPHP\XMPPHP_XMPP;
-
-//require_once 'vendor/bandroidx/xmpphp/XMPPHP/XMPP.php';
+use A3l\Deployer\Events\DeployEvents;
 
 class Project
 {
@@ -31,7 +31,7 @@ class Project
 
         $configurator = new Configurator();
         if (!$configurator->hasProject($name))
-            throw new ProjectNotFoundException("Project ${name} isn't configured", 1);
+            throw new ProjectNotFoundException("Project ${name} isn't configured");
 
         $config = $configurator->getProjectConfiguration($name);
         $output->writeln("<comment>Initializing deployment for ${name}</comment>");
@@ -39,14 +39,16 @@ class Project
         $inflector = new Inflector();
         $classname = $inflector->camelize($name);
         $classname = "A3l\\Deployer\\${classname}Deployer";
+        $notifier = new NotifierManager($configurator);
 
         if (class_exists($classname))
-            $this->deployer = new $classname($name, $config, $input, $output, $dialog);
+            $this->deployer = new $classname($name, $config, $input, $output, $dialog, $notifier);
         else
-            $this->deployer = new Deployer($name, $config, $input, $output, $dialog);
+            $this->deployer = new Deployer($name, $config, $input, $output, $dialog, $notifier);
 
         $this->output = $output;
         $this->input = $input;
+        $this->notifier = $notifier;
         $this->configurator = $configurator;
         $this->attachEvents();
 
@@ -55,7 +57,7 @@ class Project
 
     protected function attachEvents()
     {
-        $this->deployer->addListener(AbstractDeployer::EVENT_DEPLOY_PREPARE, array($this,'onPrepare'));
+        $this->deployer->addListener(DeployEvents::DEPLOY_PREPARE, array($this,'onPrepare'));
     }
 
     /**
@@ -64,25 +66,7 @@ class Project
      */
     public function onPrepare(Event $event)
     {
-
-// $conn = new XMPPHP_XMPP('talk.google.com', 5222, 'reputationlevel', 'r3put4t10nD3f4ult', 'xmpphp', 'gmail.com', $printlog=false, $loglevel=XMPPHP_Log::LEVEL_INFO);
-// echo "hola";
-// try {
-//     $conn->connect();
-//     $conn->processUntil('session_start');
-//     $conn->presence();
-//     $conn->message('zetaweb@gmail.com', 'This is a test message!');
-//     $conn->disconnect();
-// } catch(XMPPHP_Exception $e) {
-//     die($e->getMessage());
-// }
-
-
-//         $users = $this->configurator->getNotifyUsers();
-//         foreach ($users as $alias => $email)
-//         {
-
-//         }
+        #nothing
     }
 
     /**
@@ -93,6 +77,7 @@ class Project
         $this->output->writeln('<info>Deploy job start</info>');
         $this->deployer->deploy($username);
         $this->output->writeln('<info>Deploy job end</info>');
+        $this->notifier->sendSummary();
     }
 
 }

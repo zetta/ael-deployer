@@ -3,19 +3,20 @@
 namespace A3l\Deployer;
 
 use Symfony\Component\EventDispatcher\Event;
+use A3l\Deployer\Events\DeployEvents;
 
 class Deployer extends AbstractDeployer
 {
     protected function attachEvents()
     {
-        $this->addListener(static::EVENT_DEPLOY_INIT, array($this,'onStart'));
+        $this->addListener(DeployEvents::DEPLOY_PREPARE, array($this,'prepare'));
     }
 
     /**
      * onStart event
      * @param Event $event
      */
-    protected function onStart(Event $event)
+    protected function prepare(Event $event)
     {
         $this->output->writeln('<info>Generic DeployJob starting</info>');
     }
