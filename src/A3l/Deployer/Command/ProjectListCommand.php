@@ -28,6 +28,8 @@ class ProjectListCommand extends Command
     {
         $configurator = new Configurator();
         $output->writeln('<info>Registered Projects</info>');
-        $output->writeln($configurator->getProjectNames());
+        foreach ($configurator->getProjectNames() as $project) {
+            $output->writeln("<comment>${project}</comment>");
+        }
     }
 }

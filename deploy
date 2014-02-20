@@ -1,24 +1,6 @@
-#!/usr/bin/env php
-<?php
-
-function get_argument($argument_key, $default_vaue = null)
-{
-    global $argv;
-    return isset($argv[$argument_key]) ? $argv[$argument_key] : $default_vaue;
-}
-chdir( dirname(__FILE__) );
-
-$_SERVER['argv'] = build_arguments(get_argument(1));
-
-include 'application.php';
-
-function build_arguments($action)
-{
-    unset($_SERVER['argv'][0]);
-    switch ($action) {
-        case 'list':
-            return ['deploy', 'project:list'];
-        default:
-            return array_merge(['deploy','project:deploy'], $_SERVER['argv']);
-    }
-}
+#!/bin/bash
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+LOGFILE=/tmp/zetta.deploy.log
+#php $DIR/application.php $@ | tee $LOGFILE
+#php $DIR/application.php $@ | tee /tmp/zetta.deploy.log
+php $DIR/application.php $@ 4<&1 5<&2 1>&2>&>(tee -a >(sed -r 's/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g' > $LOGFILE))
