@@ -1,12 +1,18 @@
 app:
     log: /tmp/zetta.deploy.log
+    mail:
+        host: smtp.gmail.com
+        port: 465
+        security: ssl
+        username: reputationlevel@gmail.com
+        password: r3put4t10nD3f4ult
 users:
     notify:
+        jc:
+            email: juan@tuaviso.com.mx
         zetta:
-            - email: juan@reputationlevel.com
-            - xmpp: zetaweb@gmail.com
-        carlos:
-            - email: carlos@reputationlevel.com
+            email: zetaweb@gmail.com
+            xmpp: zetaweb@gmail.com
 project:
     base-path: /home/zetta/Documents/git/
     port: 54322

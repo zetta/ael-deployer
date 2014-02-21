@@ -8,12 +8,19 @@ use Fabiang\Xmpp\Protocol\Message;
 
 class NotifierManager
 {
-
     protected $configurator;
+    protected $mailer;
 
     public function __construct($configurator)
     {
         $this->configurator = $configurator;
+        $transporter = \Swift_SmtpTransport::newInstance(
+            $configurator->getConfig()['app']['mail']['host'],
+            $configurator->getConfig()['app']['mail']['port'],
+            $configurator->getConfig()['app']['mail']['security'])
+                ->setUsername($configurator->getConfig()['app']['mail']['username'])
+                ->setPassword($configurator->getConfig()['app']['mail']['password']);
+        $this->mailer = \Swift_Mailer::newInstance($transporter);
 
 /*
         $options = new Options('tcp://talk.google.com:5222');
@@ -46,8 +53,26 @@ $client->send($message);
     /**
      * @todo
      */
-    public function sendSummary()
+    public function sendSummary($projectName, $username)
     {
+        $content = file_get_contents($this->configurator->getLogFilename());
+
+        // Create a message
+        $message = \Swift_Message::newInstance(sprintf('Deploy [%s]', $projectName))
+          ->setFrom(array($this->configurator->getConfig()['app']['mail']['username'] => 'Deployer'))
+          ->setBody($content)
+        ;
+
+        $recipients = array();
+        foreach ($this->configurator->getNotifyUsers() as $key =>  $user)
+        {
+            if (isset($user['email']))
+                $recipients[$user['email']] = $key;
+        }
+        $message->setTo($recipients);
+
+        // Send the message
+        $result = $this->mailer->send($message);
 
     }
 

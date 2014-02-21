@@ -45,6 +45,6 @@ class ProjectDeployCommand extends Command
         $auth->login($username, $password);
 
         $project = new Project($input->getArgument('project'), $input, $output, $this->getHelperSet()->get('dialog'));
-        $project->deploy($username);
+        $project->deploy($input->getArgument('project'), $username);
     }
 }

@@ -74,12 +74,12 @@ class Project
     /**
      *
      */
-    public function deploy($username)
+    public function deploy($projectName, $username)
     {
         $this->output->writeln('<info>Deploy job start</info>');
         $this->deployer->deploy($username);
         $this->output->writeln('<info>Deploy job end</info>');
-        $this->notifier->sendSummary();
+        $this->notifier->sendSummary($projectName, $username);
     }
 
 }

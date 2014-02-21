@@ -5,7 +5,8 @@
         "symfony/yaml": "2.*",
         "symfony/console": "2.*",
         "symfony/event-dispatcher": "2.*",
-        "fabiang/xmpp": "*"
+        "fabiang/xmpp": "*",
+		"swiftmailer/swiftmailer": "@stable"
     },
     "autoload": {
         "psr-0": { "A3l\\": "src/" }
