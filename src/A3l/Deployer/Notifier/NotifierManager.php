@@ -59,7 +59,7 @@ $client->send($message);
 
         // Create a message
         $message = \Swift_Message::newInstance(sprintf('Deploy [%s]', $projectName))
-          ->setFrom(array($this->configurator->getConfig()['app']['mail']['username'] => sprintfs('%s via deployer', $username)))
+          ->setFrom(array($this->configurator->getConfig()['app']['mail']['username'] => sprintf('%s via deployer', $username)))
           ->setBody($content)
         ;
 
