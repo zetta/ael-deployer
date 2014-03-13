@@ -76,7 +76,7 @@ class Project
      */
     public function deploy($projectName, $username)
     {
-        $this->output->writeln('<info>Deploy job start</info>');
+        $this->output->writeln(sprintf('<info>$username starts a new deploy job</info>', $username));
         $this->deployer->deploy($username);
         $this->output->writeln('<info>Deploy job end</info>');
         $this->notifier->sendSummary($projectName, $username);
