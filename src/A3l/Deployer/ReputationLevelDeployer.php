@@ -9,15 +9,15 @@ class ReputationLevelDeployer extends AbstractDeployer
 {
     protected function attachEvents()
     {
-        $this->addListener(DeployEvents::DEPLOY_CLONE, array($this,'clone'));
-        $this->addListener(DeployEvents::DEPLOY_INSTALL, array($this,'install'));
+        $this->addListener(DeployEvents::DEPLOY_CLONE, array($this,'onClone'));
+        $this->addListener(DeployEvents::DEPLOY_INSTALL, array($this,'onInstall'));
     }
 
     /**
      * onExtract event
      * @param Event $event
      */
-    protected function clone(Event $event)
+    protected function onClone(Event $event)
     {
         // @todo
         //$this->output->writeln('<info>Checking for php errors</info>');
@@ -47,7 +47,7 @@ class ReputationLevelDeployer extends AbstractDeployer
      * afterSync event
      * @param Event $event
      */
-    protected function install(Event $event)
+    protected function onInstall(Event $event)
     {
         $assetDir = 'web/bundles/reel/assets';
         $resourceDir = 'src/A3l/ReelBundle/Resources/public/assets';
